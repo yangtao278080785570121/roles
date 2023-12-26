@@ -1,0 +1,22 @@
+- name: 1. Unarchive Frpc To Remote Host
+  unarchive:
+    src: frpc.tar.gz
+    dest: /root
+    creates: /root/frpc
+
+- name: 2. Copy Frpc Config To Remote Host
+  template: 
+    src: frpc.ini.j2
+    dest: /root/frpc/frpc.ini
+
+- name: 3. Copy Frpc Systemd Config To Remote Host
+  copy: 
+    src: frpc.service
+    dest: /lib/systemd/system/
+  notify: Systemd Daemon-reload
+
+- name: 4. Start Frpc
+  systemd:
+    name: frpc
+    state: started
+    enabled: yes

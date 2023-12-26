@@ -1,0 +1,4 @@
+- name: Restart Rsyncd
+  systemd:
+    name: rsyncd
+    state: restarted

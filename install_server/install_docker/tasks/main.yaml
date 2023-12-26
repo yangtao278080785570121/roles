@@ -1,0 +1,66 @@
+- name: 1. Ubuntu Install  Docker  Depend
+  apt: 
+    name:
+      - apt-transport-https 
+      - ca-certificates 
+      - curl 
+      - gnupg2 
+      - software-properties-common
+    state: latest
+  when:
+    ansible_distribution == 'Ubuntu'
+
+- name: 1. Centos Install  Docker  Depend
+  yum: 
+    name:
+      - yum-utils 
+      - device-mapper-persistent-data 
+      - lvm2
+    state: latest
+  when:
+    ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+
+- name: 2. Ubuntu Add GPG Public 
+  shell:
+    cmd: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  when:
+    ansible_distribution == 'Ubuntu'
+
+- name: 2. Centos Add Docker repo
+  command: 
+    cmd: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+  when:
+    ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+
+
+- name: 3. Ubuntu Add Docker repo
+  shell:
+    cmd: echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  when:
+    ansible_distribution == 'Ubuntu'
+
+
+- name: 3. Centos Add Docker repo
+  shell:
+    cmd: sed -i 's+download.docker.com+mirrors.tuna.tsinghua.edu.cn/docker-ce+' /etc/yum.repos.d/docker-ce.repo
+  when:
+    ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+
+- name: 4. Ubuntu Install Docker-ce
+  apt:
+    name: docker-ce
+    state: present
+  when:
+    ansible_distribution == 'Ubuntu'
+
+- name: 4. Centos Install Docker-ce
+  yum:
+    name: docker-ce
+    state: present
+  when:
+    ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+
+- name: 5. Start Docker
+  systemd:
+    name: docker
+    state: started

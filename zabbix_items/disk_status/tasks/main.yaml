@@ -1,0 +1,25 @@
+- name: Creates directory Scripts
+  file:
+    path: /etc/zabbix/zabbix_agentd.d/scripts
+    state: directory
+- name: Copy Disk userparameter  to Linux Server
+  copy: 
+    src: "{{ Disk_Zabbix_Conf }}" 
+    dest: /etc/zabbix/zabbix_agentd.d/
+  notify: Zabbix_agent_restart
+- name: Copy Zabbix Disk name Shell Scripts  to Linux Server
+  copy: 
+    src: "{{ Disk_Name_Zabbix_Scripts }}"
+    dest: /etc/zabbix/zabbix_agentd.d/scripts/ 
+    mode: 755
+- name: Copy Zabbix Disk Status Shell Scripts  to Linux Server
+  copy: 
+    src: "{{ Disk_Status_Zabbix_Scripts }}" 
+    dest: /etc/zabbix/zabbix_agentd.d/scripts/ 
+    mode: 755
+- name: Zabbix_agent_start
+  systemd:
+    state: started
+    name: zabbix-agent
+    enabled: yes
+

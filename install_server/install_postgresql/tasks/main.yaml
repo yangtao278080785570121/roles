@@ -1,0 +1,54 @@
+- name: 1. Ubuntu Add Postgresql repo to Ubuntu repo
+  shell:
+    cmd: echo "deb https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/apt/ $(lsb_release -cs)"-pgdg main | sudo tee  /etc/apt/sources.list.d/pgdg.list
+  when:
+    ansible_distribution == 'Ubuntu'
+
+- name: 1. CentOS Add Postgresql repo to CentOS repo
+  yum:
+    name: https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+  when:
+    ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+
+- name: 2. Add Postgresql apt-key
+  apt_key:
+    url: https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/apt/ACCC4CF8.asc
+    state: present
+  when:
+    ansible_distribution == 'Ubuntu'
+
+
+- name: 3. Update repo
+  apt: 
+    update_cache: yes
+  when:
+    ansible_distribution == 'Ubuntu'
+
+
+- name: 4. Ubuntu Install Postgresql-14
+  apt:
+    name: postgresql-14
+    state: present
+  when:
+    ansible_distribution == 'Ubuntu'
+
+- name: 4. Centos Install Postgresql-14
+  yum:
+    name: postgresql14-server
+    state: present
+  when:
+    ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+
+- name: 5. Init Postgresql-server 
+  command:
+    cmd: postgresql-14-setup initdb
+    creates: /var/lib/pgsql/14/data/PG_VERSION
+
+- name: 6. Start Postgresql14
+  systemd:
+    name: postgresql-14
+    state: started
+    enabled: yes
+  when:
+    ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+

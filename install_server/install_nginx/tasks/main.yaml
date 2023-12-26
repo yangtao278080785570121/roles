@@ -1,0 +1,17 @@
+- name: Ubuntu Check Nginx Exist
+  shell:
+    cmd: dpkg -l nginx|grep ii|grep nginx|wc -l
+  register: Ubuntu_Check_Nginx_Exist
+  changed_when: false
+- name:
+  debug:
+    msg: 
+      "{{ Ubuntu_Check_Nginx_Exist }}"
+
+- name: Ubuntu Install Nginx
+  apt:
+    name: nginx
+    state: present
+  when: 
+    Ubuntu_Check_Nginx_Exist.stdout  == '0'
+  tags: t1

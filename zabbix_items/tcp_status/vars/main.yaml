@@ -1,0 +1,2 @@
+Zabbix_Conf: check_tcp.conf
+Zabbix_Scripts: check_tcp_status.sh

@@ -1,0 +1,99 @@
+- name: 0.1 Check Mysql Server Exist
+  shell:
+    cmd: netstat -ntlp|grep 3306|awk -F[:] '{print $4}'|awk -F[\ ] '{print $1}'
+  register: Check_Mysql_Port
+  failed_when: "'3306' in Check_Mysql_Port.stdout_lines"
+
+- name: 0.2 Check Mysql App Data Dir Exist
+  command: 
+    cmd: ls /app /data
+  register: Check_App_Data
+  failed_when: "'mysql' in Check_App_Data.stdout_lines"
+
+- name: 1.1 Centos Install Mysql Depend
+  yum: 
+    name: 
+      - libaio-devel
+      - ncurses-compat-libs
+    state: present
+  when:  
+    ansible_distribution in ['CentOS', 'Rocky']
+
+- name: 1.2 Ubuntu Install Mysql Depend
+  apt:
+    name: 
+      - libaio-dev
+      - libncurses5
+    state: present
+  when:  
+    ansible_distribution ==  'Ubuntu'
+
+
+- name: 2. Create Mysql App Data Dir
+  file: 
+    path: '{{ item.path }}' 
+    state: directory
+    mode: "755"
+  loop:
+    - { path: /app }  
+    - { path: /data }  
+
+- name: 3. Unarchive Mysql App
+  unarchive:
+    src: "https://minio-api.openie.cn/file/linux/mysql/mysql-{{ Version }}.tar.gz"
+    dest: /app
+    remote_src: yes
+    creates: /app/mysql
+
+- name: 4. Chang Mysql Path
+  lineinfile: 
+    path: /etc/profile
+    regexp: 'PATH=/app/mysql/bin'
+    line: 'export PATH=/app/mysql/bin:$PATH'
+    backrefs: no
+
+- name: 5. Create Mysql Group
+  group:
+    name: mysql
+
+- name: 6. Create Mysql User
+  user:
+    name: mysql
+    group: mysql
+
+- name: 7. Change Dir Attribute
+  file:
+    path: '{{ item.path }}'
+    owner: mysql
+    group: mysql
+    recurse: yes
+  loop:
+    - { path: /app/mysql }
+    - { path: /data/mysql }
+
+- name: 8.1 Init Mysql5.7 Mysql8.0 Service
+  command:
+    cmd: /app/mysql/bin/mysqld --initialize-insecure  --user=mysql --basedir=/app/mysql --datadir=/data/mysql
+  when:
+    Version == '5.7' or Version == '8.0'
+
+- name: 8.2 Init Mysql5.6 Service
+  command:
+    cmd: /app/mysql/scripts/mysql_install_db  --user=mysql --datadir=/data/mysql --basedir=/app/mysql
+  when:
+    Version == '5.6'
+
+- name: 9. Create Mysql Config file
+  copy:
+    src: '{{ item.src }}'
+    dest: '{{ item.dest }}'
+  loop:
+    - { src: my.cnf.j2 , dest: /etc/my.cnf }
+    - { src: mysqld.service.j2 , dest: /etc/systemd/system/mysqld.service }
+
+- name: 10. Start Mysql Server
+  systemd:
+    daemon_reload: yes
+    name: mysqld
+    state: started
+    enabled: yes

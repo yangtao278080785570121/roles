@@ -1,0 +1,3 @@
+Ngx_Conf: default.conf
+Ngx_Zabbix_Conf: ngx_status.conf
+Ngx_Zabbix_Scripts: check_ngx.sh

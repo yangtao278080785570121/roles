@@ -1,0 +1,3 @@
+Disk_Zabbix_Conf: lld_disk_info.conf
+Disk_Name_Zabbix_Scripts: disk_name.sh
+Disk_Status_Zabbix_Scripts: disk_status.sh

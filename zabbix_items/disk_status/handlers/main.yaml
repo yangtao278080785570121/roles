@@ -1,0 +1,10 @@
+- name: Nginx_restart
+  systemd:
+    state: restarted
+    name: nginx
+- name: Zabbix_agent_restart
+  systemd:
+    state: restarted
+    name: zabbix-agent
+
+

@@ -1,0 +1,7 @@
+- name: restart nfs-server
+  systemd:
+    name: "{{ item }}"
+    state: restarted
+  with_items:
+    - rpcbind
+    - nfs

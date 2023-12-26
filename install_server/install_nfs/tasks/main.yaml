@@ -1,0 +1,13 @@
+- name: 1.Install nfs_server
+  yum: 
+    name: nfs-utils
+    state: present
+- name: 2.Copy Nfs_server Config File 
+  copy:
+    src: exports.j2
+    dest: /etc/exports
+  notify: restart nfs-server
+- name: 3.Start Nfs_server
+  systemd:
+    name: nfs
+    state: started

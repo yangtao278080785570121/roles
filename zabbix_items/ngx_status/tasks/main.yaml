@@ -1,0 +1,24 @@
+- name: Creates directory Scripts
+  file:
+    path: /etc/zabbix/zabbix_agentd.d/scripts
+    state: directory
+- name: Copy Nginx Conf  to Linux Server
+  copy: src={{ Ngx_Conf }} dest=/etc/nginx/conf.d/
+  notify: Nginx_restart
+- name: Copy Nginx userparameter  to Linux Server
+  copy: src={{ Ngx_Zabbix_Conf }} dest=/etc/zabbix/zabbix_agentd.d/
+  notify: Zabbix_agent_restart
+- name: Copy Zabbix Tcp Shell Scripts  to Linux Server
+  copy: src={{ Ngx_Zabbix_Scripts }} dest=/etc/zabbix/zabbix_agentd.d/scripts/ mode=755
+
+- name: Nginx_start
+  systemd:
+    state: started
+    name: nginx
+    enabled: yes
+- name: Zabbix_agent_start
+  systemd:
+    state: started
+    name: zabbix-agent
+    enabled: yes
+

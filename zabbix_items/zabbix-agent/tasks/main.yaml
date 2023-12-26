@@ -1,0 +1,13 @@
+- name: Copy Zabbix-agent Package To Remote Host
+  copy: 
+    src: "{{ Zabbix_Agent_Package }}"
+    dest: /tmp/
+- name: Install Zabbix-agent5.0 
+  yum:
+    name: "{{ Zabbix_Agent_Package_Dir }}"
+    state: latest
+- name: Modify Zabbix Super User
+  lineinfile:
+    path: /etc/sudoers
+    insertafter: '^root'
+    line: 'zabbix ALL = NOPASSWD: ALL'

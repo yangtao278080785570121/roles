@@ -1,0 +1,11 @@
+- name: Creates directory Scripts
+  file:
+    path: /etc/zabbix/zabbix_agentd.d/scripts
+    state: directory
+- name: Copy Zabbix Tcp Conf  to Linux Server
+  copy: src={{ Zabbix_Conf }} dest=/etc/zabbix/zabbix_agentd.d/
+- name: Copy Zabbix Tcp Shell Scripts  to Linux Server
+  copy: src={{ Zabbix_Scripts }} dest=/etc/zabbix/zabbix_agentd.d/scripts/ mode=755
+- name: Reboot  Zabbix-agent
+  service: name=zabbix-agent state=restarted enabled=yes
+

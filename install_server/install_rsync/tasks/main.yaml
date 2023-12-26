@@ -1,0 +1,37 @@
+- name: 1.Install Rsyncd
+  yum:
+    name: rsync
+    state: present
+- name: 2. Create Group
+  group:
+    name: www
+    state: present
+    gid: "1000"
+- name: 3. Create User
+  user:
+    name: www
+    uid: "1000"
+    state: present
+    group: www
+- name: 4. Create dir
+  file:
+    path: /backup
+    state: directory
+    mode: "755"
+    owner: www
+- name: 5.Copy Rsync Config File To Remote host
+  copy:
+    src: rsyncd.conf.j2
+    dest: /etc/rsyncd.conf
+  notify: Restart Rsyncd
+- name: 6. Touch Rsync Auth Password  File
+  copy:
+    content: "www_backup:123456"
+    dest: /etc/rsync.password
+    mode: "600"
+  notify: Restart Rsyncd
+- name: 7. Start Rsync Server
+  systemd:
+    name: rsyncd
+    state: started
+    enabled: yes

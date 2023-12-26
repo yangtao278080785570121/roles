@@ -1,0 +1,3 @@
+Zabbix_Agent_Package: 'zabbix-agent-5.0.0-1.el7.x86_64.rpm'
+Zabbix_Agent_Package_Dir: /tmp/zabbix-agent-5.0.0-1.el7.x86_64.rpm
+
